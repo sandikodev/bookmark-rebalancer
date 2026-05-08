@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bookmark Rebalancer</title>
+  <meta name="description" content="AI-powered bookmark manager for developers. Save, organize, and rediscover your bookmarks with intelligence." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'><rect width='128' height='128' rx='24' fill='%2300d4ff'/><path d='M36 28h56c4.4 0 8 3.6 8 8v64l-36-20-36 20V36c0-4.4 3.6-8 8-8z' fill='%23fff' opacity='.95'/><path d='M64 72l-24 13.3V40c0-2.2 1.8-4 4-4h40c2.2 0 4 1.8 4 4v45.3L64 72z' fill='%231a1a2e'/><path d='M60 48h8v16h-8zM60 52h8v4h-8z' fill='%2300d4ff'/></svg>" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f0f1a;
+      color: #e0e0e0;
+      line-height: 1.6;
+    }
+    .container { max-width: 960px; margin: 0 auto; padding: 0 20px; }
+
+    /* Hero */
+    .hero {
+      padding: 80px 0 60px;
+      text-align: center;
+      background: linear-gradient(180deg, #0f0f1a 0%, #1a1a2e 100%);
+    }
+    .hero-icon {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-size: 48px;
+      font-weight: 800;
+      color: #00d4ff;
+      margin-bottom: 16px;
+    }
+    .hero p {
+      font-size: 18px;
+      color: #a0a0b0;
+      max-width: 600px;
+      margin: 0 auto 32px;
+    }
+    .hero-badges {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 32px;
+    }
+    .hero-badges img { height: 28px; }
+    .btn-group { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: #00d4ff;
+      color: #0f0f1a;
+    }
+    .btn-primary:hover { background: #00b8e6; transform: translateY(-1px); }
+    .btn-secondary {
+      background: #2a2a4a;
+      color: #e0e0e0;
+      border: 1px solid #3a3a5a;
+    }
+    .btn-secondary:hover { background: #3a3a5a; transform: translateY(-1px); }
+
+    /* Sections */
+    section { padding: 60px 0; }
+    section:nth-child(even) { background: #12122a; }
+    h2 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #00d4ff;
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+    /* Features */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .feature-card {
+      background: #16213e;
+      border: 1px solid #2a2a4a;
+      border-radius: 12px;
+      padding: 24px;
+      transition: border-color 0.2s;
+    }
+    .feature-card:hover { border-color: #00d4ff; }
+    .feature-icon { font-size: 28px; margin-bottom: 12px; }
+    .feature-card h3 { font-size: 16px; margin-bottom: 8px; }
+    .feature-card p { font-size: 13px; color: #a0a0b0; }
+
+    /* Architecture */
+    .arch {
+      background: #16213e;
+      border: 1px solid #2a2a4a;
+      border-radius: 12px;
+      padding: 32px;
+      text-align: center;
+      font-family: monospace;
+      font-size: 13px;
+      line-height: 1.8;
+      color: #a0a0b0;
+      overflow-x: auto;
+    }
+    .arch strong { color: #00d4ff; }
+
+    /* Commands */
+    .cmd-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 8px;
+    }
+    .cmd-item {
+      background: #16213e;
+      border: 1px solid #2a2a4a;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-family: monospace;
+      font-size: 13px;
+    }
+    .cmd-item .cmd { color: #4ade80; }
+    .cmd-item .desc { color: #707080; margin-left: 12px; }
+
+    /* Tech Stack */
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .tech-card {
+      background: #16213e;
+      border: 1px solid #2a2a4a;
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+    }
+    .tech-card h4 { font-size: 14px; color: #00d4ff; margin-bottom: 4px; }
+    .tech-card p { font-size: 12px; color: #707080; }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 40px 0;
+      color: #707080;
+      font-size: 13px;
+    }
+    footer a { color: #00d4ff; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 32px; }
+      .hero { padding: 40px 0; }
+      section { padding: 40px 0; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Hero -->
+  <div class="hero">
+    <div class="container">
+      <svg class="hero-icon" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+        <rect width="128" height="128" rx="24" fill="#00d4ff"/>
+        <path d="M36 28h56c4.4 0 8 3.6 8 8v64l-36-20-36 20V36c0-4.4 3.6-8 8-8z" fill="#fff" opacity=".95"/>
+        <path d="M64 72l-24 13.3V40c0-2.2 1.8-4 4-4h40c2.2 0 4 1.8 4 4v45.3L64 72z" fill="#1a1a2e"/>
+        <path d="M60 48h8v16h-8zM60 52h8v4h-8z" fill="#00d4ff"/>
+      </svg>
+      <h1>Bookmark Rebalancer</h1>
+      <p>AI-powered bookmark manager for developers. Save, organize, and rediscover your bookmarks with intelligence.</p>
+      <div class="hero-badges">
+        <img src="https://img.shields.io/github/actions/workflow/status/sandikodev/bookmark-rebalancer/ci.yml?branch=main&label=CI" alt="CI" />
+        <img src="https://img.shields.io/github/license/sandikodev/bookmark-rebalancer" alt="License" />
+        <img src="https://img.shields.io/badge/Bun-1.3+-black?logo=bun" alt="Bun" />
+        <img src="https://img.shields.io/github/v/release/sandikodev/bookmark-rebalancer" alt="Release" />
+      </div>
+      <div class="btn-group">
+        <a href="https://github.com/sandikodev/bookmark-rebalancer" class="btn btn-primary">View on GitHub</a>
+        <a href="https://github.com/sandikodev/bookmark-rebalancer/releases" class="btn btn-secondary">Download Extension</a>
+        <a href="https://github.com/sandikodev/bookmark-rebalancer/blob/main/README.md" class="btn btn-secondary">Documentation</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <section>
+    <div class="container">
+      <h2>Features</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🌐</div>
+          <h3>Cross-browser Extension</h3>
+          <p>Works on Chrome, Firefox, and Edge. Built with WXT for seamless multi-browser support.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🤖</div>
+          <h3>AI-Powered</h3>
+          <p>Smart summarization, auto-tagging, and semantic search. Supports OpenRouter, NVIDIA NIM, or your own AI proxy.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔌</div>
+          <h3>Multi-Provider AI</h3>
+          <p>Bring your own AI. Plug in any OpenAI-compatible provider — OpenRouter, NVIDIA, Baseten, or custom.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📂</div>
+          <h3>Smart Organization</h3>
+          <p>Collections, tags, projects, and auto-detection for GitHub repos, HuggingFace models, arXiv papers, and more.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔍</div>
+          <h3>Semantic Search</h3>
+          <p>Find bookmarks by meaning, not just keywords. AI embeddings power intelligent discovery.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <h3>CLI Tool</h3>
+          <p>Full control from terminal. Manage bookmarks, projects, and schedule with the <code>bm</code> command.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📅</div>
+          <h3>Projects & Schedule</h3>
+          <p>Group bookmarks into projects, track progress, and schedule work sessions. Perfect for OSS contribution planning.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📦</div>
+          <h3>Self-Hosted</h3>
+          <p>Your data, your control. SQLite database, Docker support, no cloud dependency.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Start -->
+  <section>
+    <div class="container">
+      <h2>Quick Start</h2>
+      <div class="arch">
+<strong># Run with Docker</strong>
+docker compose up -d
+
+<strong># Or with Bun</strong>
+bun install
+bun run packages/shared build
+bun run backend:dev
+
+<strong># Configure AI (optional)</strong>
+export BM_API=http://localhost:3000
+bun run cli:dev config set-ai --key sk-... --provider openrouter
+
+<strong># Save your first bookmark</strong>
+bun run cli:dev add https://github.com/honojs/hono --smart
+
+<strong># Open the side panel in your browser</strong>
+bun run extension:dev
+      </div>
+    </div>
+  </section>
+
+  <!-- CLI Reference -->
+  <section>
+    <div class="container">
+      <h2>CLI Reference</h2>
+      <div class="cmd-grid">
+        <div class="cmd-item"><span class="cmd">bm add &lt;url&gt;</span><span class="desc">Save a bookmark</span></div>
+        <div class="cmd-item"><span class="cmd">bm add &lt;url&gt; --smart</span><span class="desc">AI auto-summarize &amp; tag</span></div>
+        <div class="cmd-item"><span class="cmd">bm list</span><span class="desc">List bookmarks</span></div>
+        <div class="cmd-item"><span class="cmd">bm search &lt;q&gt; --semantic</span><span class="desc">AI semantic search</span></div>
+        <div class="cmd-item"><span class="cmd">bm project create &lt;name&gt;</span><span class="desc">Create a project</span></div>
+        <div class="cmd-item"><span class="cmd">bm schedule add &lt;pid&gt; --date &lt;d&gt;</span><span class="desc">Schedule work session</span></div>
+        <div class="cmd-item"><span class="cmd">bm summarize &lt;url&gt;</span><span class="desc">AI summarization</span></div>
+        <div class="cmd-item"><span class="cmd">bm config set-ai --key &lt;k&gt;</span><span class="desc">Configure AI provider</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Architecture -->
+  <section>
+    <div class="container">
+      <h2>Architecture</h2>
+      <div class="arch">
+┌─────────────────────┐     ┌──────────────────┐     ┌──────────────┐
+│  <strong>Browser Extension</strong>  │────▶│  <strong>Backend (Hono)</strong>  │────▶│   <strong>SQLite</strong>   │
+│  (WXT + TypeScript)  │◀────│  + CLI (Bun)     │◀────│              │
+└─────────────────────┘     └────────┬─────────┘     └──────────────┘
+                                      │
+                                      ▼
+                              ┌────────────────┐
+                              │  <strong>AI Providers</strong>  │
+                              │ (OpenRouter,    │
+                              │  NVIDIA, dll)   │
+                              └────────────────┘
+      </div>
+    </div>
+  </section>
+
+  <!-- Tech Stack -->
+  <section>
+    <div class="container">
+      <h2>Tech Stack</h2>
+      <div class="tech-grid">
+        <div class="tech-card">
+          <h4>WXT</h4>
+          <p>Cross-browser extension framework</p>
+        </div>
+        <div class="tech-card">
+          <h4>Hono</h4>
+          <p>Fast TypeScript web framework</p>
+        </div>
+        <div class="tech-card">
+          <h4>Bun</h4>
+          <p>JavaScript runtime &amp; toolkit</p>
+        </div>
+        <div class="tech-card">
+          <h4>SQLite</h4>
+          <p>Embedded database via bun:sqlite</p>
+        </div>
+        <div class="tech-card">
+          <h4>TypeScript</h4>
+          <p>Type-safe codebase</p>
+        </div>
+        <div class="tech-card">
+          <h4>Zod</h4>
+          <p>Schema validation</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p><a href="https://github.com/sandikodev/bookmark-rebalancer">Bookmark Rebalancer</a> &mdash; MIT License</p>
+      <p style="margin-top:8px;">Built with ❤️ for the OSS community</p>
+    </div>
+  </footer>
+</body>
+</html>
