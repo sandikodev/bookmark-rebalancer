@@ -93,6 +93,25 @@ export const CreateProjectSchema = z.object({
   deadline: z.string().optional(),
 });
 
+// ─── Project (extended) ───
+export interface ProjectDetail extends Project {
+  bookmarkCount: number;
+  completedEntries: number;
+  totalEntries: number;
+}
+
+export const UpdateProjectSchema = z.object({
+  name: z.string().min(1).optional(),
+  description: z.string().optional(),
+  status: z.enum(["active", "paused", "completed"]).optional(),
+  priority: z.number().int().min(0).max(5).optional(),
+  deadline: z.string().nullable().optional(),
+});
+
+export const AddBookmarkToProjectSchema = z.object({
+  bookmarkId: z.string(),
+});
+
 // ─── Schedule Entry ───
 export interface ScheduleEntry {
   id: string;
@@ -103,6 +122,20 @@ export interface ScheduleEntry {
   completed: boolean;
   createdAt: string;
 }
+
+export const CreateScheduleSchema = z.object({
+  projectId: z.string(),
+  scheduledDate: z.string(),
+  durationMinutes: z.number().int().min(1).default(60),
+  notes: z.string().default(""),
+});
+
+export const UpdateScheduleSchema = z.object({
+  scheduledDate: z.string().optional(),
+  durationMinutes: z.number().int().min(1).optional(),
+  notes: z.string().optional(),
+  completed: z.boolean().optional(),
+});
 
 // ─── List query ───
 export interface ListQuery {

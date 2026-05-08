@@ -4,6 +4,8 @@ import { logger } from "hono/logger";
 import { bookmarks } from "./routes/bookmarks";
 import { tags } from "./routes/tags";
 import { collections } from "./routes/collections";
+import { projects } from "./routes/projects";
+import { schedule } from "./routes/schedule";
 import { ai } from "./routes/ai";
 import { getAiSettings, setAiSettings, getConfigPath } from "./config";
 
@@ -15,6 +17,8 @@ app.use("*", cors());
 app.route("/api/bookmarks", bookmarks);
 app.route("/api/tags", tags);
 app.route("/api/collections", collections);
+app.route("/api/projects", projects);
+app.route("/api/schedule", schedule);
 app.route("/api/ai", ai);
 
 app.get("/api/health", (c) => c.json({ status: "ok" }));

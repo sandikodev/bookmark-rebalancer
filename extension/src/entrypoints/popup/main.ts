@@ -199,3 +199,34 @@ function updatePlatformBadge(platform: string) {
   platformBadge.textContent = names[platform] || "Other";
   platformBadge.className = `platform-badge ${platform}`;
 }
+
+// ─── More Menu ───
+const moreBtn = document.getElementById("more-btn")!;
+const moreMenu = document.getElementById("more-menu")!;
+
+moreBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  moreMenu.classList.toggle("show");
+});
+
+document.addEventListener("click", () => moreMenu.classList.remove("show"));
+
+document.getElementById("open-sidepanel")?.addEventListener("click", async () => {
+  moreMenu.classList.remove("show");
+  // Open side panel
+  const sidePanel = (browser as any).sidePanel;
+  if (sidePanel?.open) {
+    await sidePanel.open();
+  } else {
+    // Fallback: open a new tab with the side panel URL
+    const url = browser.runtime.getURL("/sidepanel.html");
+    await browser.tabs.create({ url });
+  }
+});
+
+document.getElementById("open-dashboard")?.addEventListener("click", async () => {
+  moreMenu.classList.remove("show");
+  const apiUrl = await getApiUrl();
+  // Open the backend health page as a simple dashboard reference
+  await browser.tabs.create({ url: apiUrl });
+});

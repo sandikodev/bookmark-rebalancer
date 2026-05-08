@@ -167,6 +167,47 @@
     .btn-secondary:hover { background: #3a3a5a; }
     .btn-group { display: flex; gap: 8px; }
     .btn-group button { flex: 1; }
+    .more-container { position: relative; margin-top: 8px; }
+    .more-btn {
+      width: 100%;
+      padding: 6px;
+      background: #2a2a4a;
+      color: #a0a0b0;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .more-btn:hover { background: #3a3a5a; }
+    .more-menu {
+      display: none;
+      position: absolute;
+      bottom: 100%;
+      left: 0;
+      right: 0;
+      background: #16213e;
+      border: 1px solid #2a2a4a;
+      border-radius: 8px;
+      padding: 4px;
+      margin-bottom: 4px;
+      z-index: 10;
+    }
+    .more-menu.show { display: block; }
+    .more-menu-item {
+      padding: 8px 12px;
+      font-size: 13px;
+      color: #e0e0e0;
+      cursor: pointer;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .more-menu-item:hover { background: #2a2a4a; }
     .loading {
       display: inline-block;
       width: 14px;
@@ -211,6 +252,17 @@
   <div class="btn-group">
     <button id="save-btn">Save Bookmark</button>
     <button id="smart-btn" class="btn-secondary">✨ Smart Save</button>
+  </div>
+  <div class="more-container">
+    <button class="more-btn" id="more-btn">☰ More</button>
+    <div class="more-menu" id="more-menu">
+      <div class="more-menu-item" id="open-sidepanel">
+        <span>↔</span> Open Side Panel
+      </div>
+      <div class="more-menu-item" id="open-dashboard">
+        <span>📊</span> Dashboard (Web)
+      </div>
+    </div>
   </div>
   <div id="status" class="status"></div>
   <script type="module" src="./main.ts"></script>

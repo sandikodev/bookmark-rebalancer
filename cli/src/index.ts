@@ -237,6 +237,137 @@ async function main() {
       break;
     }
 
+    // ─── Projects ───
+    case "project": {
+      if (!sub) { console.error("Usage: bm project <create|list|show|add-bookmark|rm>"); break; }
+
+      if (sub === "create") {
+        const flags = parseFlags(args);
+        const name = args.find(a => !a.startsWith("--"));
+        if (!name) { console.error("Usage: bm project create <name> [--description ...] [--priority 3]"); process.exit(1); }
+        const result = await api("/projects", {
+          method: "POST",
+          body: { name, description: flags.description || "", priority: parseInt(flags.priority || "3") },
+        });
+        console.log(`✓ Project created: ${result.data.name} (${result.data.id})`);
+        break;
+      }
+
+      if (sub === "list") {
+        const result = await api("/projects");
+        if (result.data.length === 0) { console.log("No projects yet."); return; }
+        console.log("Projects:");
+        for (const p of result.data) {
+          const statusBadge = p.status === "active" ? "●" : "○";
+          const pct = p.total_entries > 0 ? ` ${Math.round((p.completed_entries / p.total_entries) * 100)}% done` : "";
+          console.log(`  ${statusBadge} ${p.name} (P${p.priority}) — ${p.bookmark_count} bookmarks${pct}`);
+        }
+        break;
+      }
+
+      if (sub === "show") {
+        const id = args[0];
+        if (!id) { console.error("Usage: bm project show <id>"); process.exit(1); }
+        const result = await api(`/projects/${id}`);
+        const p = result.data;
+        console.log(`Project: ${p.name}`);
+        console.log(`  Status: ${p.status}`);
+        console.log(`  Priority: P${p.priority}`);
+        console.log(`  Bookmarks: ${p.bookmark_count}`);
+        if (p.bookmarks?.length) {
+          for (const bm of p.bookmarks) {
+            console.log(`    · ${bm.title || bm.url}`);
+          }
+        }
+        break;
+      }
+
+      if (sub === "add-bookmark") {
+        const projectId = args[0];
+        const bookmarkId = args[1];
+        if (!projectId || !bookmarkId) { console.error("Usage: bm project add-bookmark <project-id> <bookmark-id>"); process.exit(1); }
+        await api(`/projects/${projectId}/bookmarks`, {
+          method: "POST",
+          body: { bookmarkId },
+        });
+        console.log("✓ Bookmark added to project");
+        break;
+      }
+
+      if (sub === "rm") {
+        const id = args[0];
+        if (!id) { console.error("Usage: bm project rm <id>"); process.exit(1); }
+        await api(`/projects/${id}`, { method: "DELETE" });
+        console.log(`✓ Project deleted`);
+        break;
+      }
+
+      console.error("Unknown project subcommand. Use: create, list, show, add-bookmark, rm");
+      break;
+    }
+
+    // ─── Schedule ───
+    case "schedule": {
+      if (!sub) { console.error("Usage: bm schedule <list|add|done|rm>"); break; }
+
+      const flags = parseFlags(args);
+
+      if (sub === "list") {
+        const params = new URLSearchParams();
+        if (flags.project) params.set("projectId", flags.project);
+        if (flags.date) params.set("date", flags.date);
+        if (flags.week) params.set("week", flags.week);
+        if (flags.completed) params.set("completed", flags.completed);
+        const qs = params.toString();
+        const result = await api(`/schedule${qs ? `?${qs}` : ""}`);
+        if (result.data.length === 0) { console.log("No schedule entries."); return; }
+        console.log("Schedule:");
+        for (const s of result.data) {
+          const check = s.completed ? "✓" : "○";
+          const date = s.scheduled_date?.slice(0, 10);
+          console.log(`  ${check} [${date}] ${s.project_name} — ${s.duration_minutes}min`);
+          if (s.notes) console.log(`       ${s.notes}`);
+        }
+        break;
+      }
+
+      if (sub === "add") {
+        const projectId = args[0];
+        if (!projectId) { console.error("Usage: bm schedule add <project-id> --date 2026-06-01 [--duration 60] [--notes ...]"); process.exit(1); }
+        if (!flags.date) { console.error("--date is required"); process.exit(1); }
+        const result = await api("/schedule", {
+          method: "POST",
+          body: {
+            projectId,
+            scheduledDate: flags.date,
+            durationMinutes: parseInt(flags.duration || "60"),
+            notes: flags.notes || "",
+          },
+        });
+        console.log(`✓ Schedule added: ${flags.date} (${flags.duration || 60}min)`);
+        break;
+      }
+
+      if (sub === "done") {
+        const id = args[0];
+        if (!id) { console.error("Usage: bm schedule done <id>"); process.exit(1); }
+        await api(`/schedule/${id}`, { method: "PUT", body: { completed: true } });
+        console.log("✓ Marked as done");
+        break;
+      }
+
+      if (sub === "rm") {
+        const id = args[0];
+        if (!id) { console.error("Usage: bm schedule rm <id>"); process.exit(1); }
+        await api(`/schedule/${id}`, { method: "DELETE" });
+        console.log("✓ Schedule deleted");
+        break;
+      }
+
+      console.error("Unknown schedule subcommand. Use: list, add, done, rm");
+      break;
+    }
+
     case "tags": {
       const result = await api("/tags");
       if (result.data.length === 0) { console.log("No tags yet."); return; }
@@ -280,6 +411,19 @@ Bookmark Management:
 AI Features:
   bm summarize <url|id>                         — Summarize a URL or bookmark
   bm smart-tag <url>                            — Suggest tags via AI
+
+Projects:
+  bm project create <name> [--description ...] [--priority 3]
+  bm project list
+  bm project show <id>
+  bm project add-bookmark <project-id> <bookmark-id>
+  bm project rm <id>
+
+Schedule:
+  bm schedule list [--project <id>] [--date 2026-06-01] [--week 2026-06-01]
+  bm schedule add <project-id> --date <date> [--duration 60] [--notes ...]
+  bm schedule done <id>
+  bm schedule rm <id>
 
 Configuration:
   bm config show                                — Show current config
