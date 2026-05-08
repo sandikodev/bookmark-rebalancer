@@ -16,7 +16,8 @@ export default defineBackground(() => {
 
       if (url) {
         try {
-          await fetch("http://localhost:3000/api/bookmarks", {
+          const apiUrl = (await browser.storage.local.get("apiUrl").catch(() => ({}))).apiUrl || "http://localhost:3000";
+          await fetch(`${apiUrl}/api/bookmarks`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ url, title }),

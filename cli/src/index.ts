@@ -2,7 +2,19 @@
 import type { CreateBookmarkInput } from "@bookmark-rebalancer/shared";
 
 const API = process.env.BM_API || "http://localhost:3000";
-const cmd = process.argv[2];
+const VERSION = "0.2.0";
+
+const first = process.argv[2];
+if (first === "--version" || first === "-v") {
+  console.log(`bm v${VERSION}`);
+  process.exit(0);
+}
+if (first === "--help" || first === "-h") {
+  showHelp();
+  process.exit(0);
+}
+
+const cmd = first;
 const sub = process.argv[3];
 const args = process.argv.slice(4);
 
@@ -243,8 +255,18 @@ async function main() {
 
     case "help":
     default: {
-      console.log(`
-bm — Bookmark Rebalancer CLI
+      showHelp();
+      break;
+    }
+  }
+}
+
+function showHelp() {
+  console.log(`
+bm v${VERSION} — Bookmark Rebalancer CLI
+
+Usage:
+  bm <command> [options]
 
 Bookmark Management:
   bm add <url> [--tags a,b,c] [--notes "..."] [--collection <id>]
@@ -266,9 +288,6 @@ Configuration:
 Environment:
   BM_API  Backend URL (default: http://localhost:3000)
 `);
-      break;
-    }
-  }
 }
 
 main().catch((err) => {

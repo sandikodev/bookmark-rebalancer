@@ -6,6 +6,7 @@ import { createProvider } from "../ai";
 import { fetchPageContent } from "../services/fetcher";
 import { generateSummary, suggestTags } from "../services/ai-service";
 import { generateEmbedding } from "../services/embeddings";
+import { detectPlatform } from "../services/platform";
 import { getDb } from "../db";
 
 export const ai = new Hono();
@@ -78,11 +79,12 @@ ai.post("/auto-bookmark", zValidator("json", z.object({ url: z.string().url(), c
     const db = getDb();
     const id = crypto.randomUUID();
     const now = new Date().toISOString();
+    const platformInfo = detectPlatform(url);
 
     db.run(
-      `INSERT INTO bookmarks (id, url, title, description, notes, summary, platform, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, 'other', ?, ?)`,
-      [id, url, content.title, content.description, "", summary, now, now]
+      `INSERT INTO bookmarks (id, url, title, description, notes, summary, platform, platform_id, platform_metadata, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [id, url, content.title, content.description, "", summary, platformInfo.platform, platformInfo.platformId, JSON.stringify(platformInfo.platformMetadata), now, now]
     );
 
     for (const tagName of tags) {

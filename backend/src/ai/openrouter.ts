@@ -15,7 +15,7 @@ export class OpenRouterProvider extends AiProvider {
       headers: {
         Authorization: `Bearer ${this.config.apiKey}`,
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://github.com/anomalyco/bookmark-rebalancer",
+        "HTTP-Referer": "https://github.com/sandikodev/bookmark-rebalancer",
       },
       body: JSON.stringify({
         model: this.config.model,

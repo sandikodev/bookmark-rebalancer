@@ -5,7 +5,7 @@ let db: Database;
 
 export function getDb(): Database {
   if (!db) {
-    db = new Database("bookmarks.db");
+    db = new Database(process.env.BM_DB_PATH || "bookmarks.db");
     db.exec("PRAGMA journal_mode=WAL");
     db.exec("PRAGMA foreign_keys=ON");
     db.exec(SCHEMA);

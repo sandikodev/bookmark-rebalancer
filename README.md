@@ -19,11 +19,25 @@ Bookmark Rebalancer replaces your browser's built-in bookmark manager with a sma
 - **⚡ CLI Tool** — Full control from terminal (`bm`)
 - **📦 Self-hosted** — Your data, your control (SQLite)
 
+## Screenshots
+
+> _Screenshots coming soon. In the meantime, check the [extension popup](extension/src/entrypoints/popup/index.html) source._
+
 ## Quick Start
 
-### 1. Run the backend
+### Option A: Run with Docker (recommended)
 
 ```bash
+docker compose up -d
+```
+
+Server starts at `http://localhost:3000`.
+
+### Option B: Run with Bun
+
+```bash
+bun install
+bun run packages/shared build
 bun run backend:dev
 ```
 

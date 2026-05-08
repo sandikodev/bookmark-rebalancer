@@ -1,4 +1,11 @@
-const API = "http://localhost:3000";
+async function getApiUrl(): Promise<string> {
+  try {
+    const result = await browser.storage.local.get("apiUrl");
+    return result.apiUrl || "http://localhost:3000";
+  } catch {
+    return "http://localhost:3000";
+  }
+}
 
 interface BookmarkData {
   url: string;
@@ -30,7 +37,8 @@ let collections: Array<{ id: string; name: string }> = [];
 let currentTab: { url: string; title: string } | null = null;
 let detectedPlatform = "other";
 
-browser.tabs.query({ active: true, currentWindow: true }).then(([tab]) => {
+(async () => {
+  const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
   if (tab?.url) {
     currentTab = { url: tab.url, title: tab.title || "" };
     previewTitle.textContent = tab.title || "Untitled";
@@ -39,11 +47,11 @@ browser.tabs.query({ active: true, currentWindow: true }).then(([tab]) => {
     detectedPlatform = detectPlatform(tab.url);
     updatePlatformBadge(detectedPlatform);
   }
-});
 
-fetch(`${API}/api/collections`)
-  .then((r) => r.json())
-  .then((data) => {
+  const apiUrl = await getApiUrl();
+  try {
+    const res = await fetch(`${apiUrl}/api/collections`);
+    const data = await res.json();
     collections = data.data || [];
     for (const col of collections) {
       const opt = document.createElement("option");
@@ -51,8 +59,8 @@ fetch(`${API}/api/collections`)
       opt.textContent = col.name;
       collectionSelect.appendChild(opt);
     }
-  })
-  .catch(() => {});
+  } catch {}
+})();
 
 tagInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
@@ -100,7 +108,8 @@ function getData(): BookmarkData {
 }
 
 async function saveBookmark(data: BookmarkData) {
-  const res = await fetch(`${API}/api/bookmarks`, {
+  const apiUrl = await getApiUrl();
+  const res = await fetch(`${apiUrl}/api/bookmarks`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -137,7 +146,8 @@ smartBtn.addEventListener("click", async () => {
   smartBtn.innerHTML = `<span class="loading"></span> Analyzing...`;
 
   try {
-    const res = await fetch(`${API}/api/ai/auto-bookmark`, {
+    const apiUrl = await getApiUrl();
+    const res = await fetch(`${apiUrl}/api/ai/auto-bookmark`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
