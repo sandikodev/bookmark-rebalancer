@@ -17,7 +17,7 @@ jobs:
       - run: bun install
       - run: bun run --cwd packages/shared build
       - run: bun run --cwd backend build
-      - run: bun run --cwd backend/src/test.ts
+      - run: bun run --cwd backend test
 
   cli:
     runs-on: ubuntu-latest

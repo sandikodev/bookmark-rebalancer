@@ -33,9 +33,15 @@ jobs:
       - name: Build extension (Firefox)
         run: |
           cd extension
-          npx wxt build --browser firefox
-          cd .output/firefox-mv3
-          zip -r ../../../bookmark-rebalancer-firefox.zip .
+          bunx wxt build --browser firefox 2>/dev/null || bun run wxt build --browser firefox
+          if [ -d .output/firefox-mv3 ]; then
+            cd .output/firefox-mv3 && zip -r ../../../bookmark-rebalancer-firefox.zip .
+          elif [ -d .output/firefox-mv2 ]; then
+            cd .output/firefox-mv2 && zip -r ../../../bookmark-rebalancer-firefox.zip .
+          else
+            echo "Firefox output directory not found"
+            ls .output/
+          fi
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
